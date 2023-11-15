@@ -7,10 +7,12 @@ namespace automationTest.Service
     public class ElasticDataService
     {
         private readonly ApplicationDbContext _context;
+
         public ElasticDataService(ApplicationDbContext context)
         {
             _context = context;
         }
+
         private IQueryable<tblElasticData> ProjectElasticDataProperties(IQueryable<tblElasticData> dataQuery)
         {
             return dataQuery.Select(data => new tblElasticData
@@ -24,6 +26,7 @@ namespace automationTest.Service
                 MessageCategory = data.MessageCategory
             });
         }
+
         public List<tblElasticData> GetElasticDataBySubject(string searchSubject)
         {
             if (string.IsNullOrWhiteSpace(searchSubject))
@@ -37,9 +40,7 @@ namespace automationTest.Service
             var query = _context.tblElasticData
                 .Where(data => !string.IsNullOrWhiteSpace(data.Subject) && EF.Functions.Like(data.Subject, "%" + searchSubject + "%"));
 
-            // Add additional conditions or ordering if needed
-
-            // Limit the columns retrieved if possible
+        
             var result = ProjectElasticDataProperties(query).ToList();
 
             return result;
@@ -51,29 +52,10 @@ namespace automationTest.Service
                 .Where(data => data.EventDate.Date >= startDate && data.EventDate.Date <= endDate))
                 .ToList();
         }
-
     }
 }
 
 //STUFF
-
-
-//public List<tblElasticData> GetElasticDataBySubject(string searchSubject)
-//{
-//    if (searchSubject != null)
-//    {
-//        searchSubject = searchSubject.Replace(" ", ""); // Remove whitespace from the search subject
-
-//        return ProjectElasticDataProperties(_context.tblElasticData
-//            .Where(data => data.Subject != null && data.Subject.Replace(" ", "").Contains(searchSubject)))
-//            .ToList();
-//    }
-//    else
-//    {
-//        // Handle the case where searchSubject is null (optional)
-//        return new List<tblElasticData>();
-//    }
-//}
 //private IQueryable<tblElasticData> ProjectElasticDataProperties(IQueryable<tblElasticData> dataQuery)
 //{
 //    return dataQuery.Select(data => new tblElasticData

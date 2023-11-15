@@ -38,18 +38,23 @@ $(document).ready(function () {
                 targets: 0,
                 orderable: false
             }],
-            //// Callbacks to show/hide loading modal
-            //"preInit": function () {
-            //    showLoadingModal();
-            //},
-            //"drawCallback": function () {
-            //    hideLoadingModal();
-            //}
+            // Callbacks to show/hide loading modal
+            "preInit": function () {
+                showLoadingModal();
+            },
+            "drawCallback": function () {
+                hideLoadingModal();
+            }
         });
         setTimeout(function () {
             $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
         }, 10);
-       
+        // Display only Subject column outside the table for the first item
+        //var firstItemSubject = '@Model.ElasticData.First().Subject';
+        //if (firstItemSubject) {
+        //    $("#firstItemSubject").text('First Item Subject: ' + firstItemSubject);
+        //}
+
         // Include DataTable buttons in a separate div for better styling
         $('.dt-buttons').appendTo('.buttons-container');
         document.getElementById('searchButton').addEventListener('click', loadDataAndDisplayTable_);
@@ -87,7 +92,7 @@ function hideLoadingModal() {
 async function loadDataAndDisplayTable_() {
     try {
         showLoadingModal(); // Show loading modal before starting the fetch
-
+     
         var searchSubject = document.getElementById('startDateInput').value;
         var url = `/Home/DisplayElasticData?searchMailNumber=${searchSubject}`;
 
@@ -98,13 +103,15 @@ async function loadDataAndDisplayTable_() {
         }
 
         const data = await response.json();
+
+        // Update your table or do other processing here with the data
         console.log(data);
 
     } catch (error) {
         console.error('Error:', error);
-    } finally { 
         hideLoadingModal();
     }
+    
 }
 // --- DATE FILTER ---
 async function loadDataAndDisplayTable() {
@@ -122,11 +129,14 @@ async function loadDataAndDisplayTable() {
         }
 
         const data = await response.json();
+
+        // Update your table or do other processing here with the data
         console.log(data);
 
+        // Hide the loading modal after the data is loaded and displayed
+        hideLoadingModal();
     } catch (error) {
         console.error('Error:', error);
-    } finally {
         hideLoadingModal(); // Hide the loading modal in case of an error
     }
 }

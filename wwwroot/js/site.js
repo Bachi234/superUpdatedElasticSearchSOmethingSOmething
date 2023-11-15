@@ -1,28 +1,19 @@
 ﻿var dataTable;
-toastr.options = {
-    closeButton: true,
-    debug: false,
-    newestOnTop: true,
-    progressBar: true,
-    positionClass: "toast-top-right",
-    preventDuplicates: false,
-    onclick: null,
-    showDuration: "300",
-    hideDuration: "1000",
-    timeOut: "5000",
-    extendedTimeOut: "1000",
-};
 $(document).ready(function () {
     try {
         // Initialize DataTable
-        dataTable = $("#datatable-buttons").DataTable({
+            dataTable = $("#datatable-buttons").DataTable({
             scrollY: '100vh', // Enable vertical scrolling
-            scrollX: true,    // Enable horizontal scrolling
+            /*scrollX: true, */   // Enable horizontal scrolling
             fixedHeader: true, // Fix the table header
             lengthChange: true,
             lengthMenu: [[100, 250, 500], [100, 250, 500]],
             pageLength: 100,
-            autoWidth: true,
+            initComplete: function () {
+                // fade in the table after datatables is fully initialized
+                $('#datatableContainer0').delay(10).show();
+            },
+            /*autoWidth: true,*/
             dom: '<"row"<"col-md-6"B><"col-md-6"f>>rt<"row"<"col-md-6"l><"col-md-6"p>>',
             buttons: [
                 {
@@ -43,16 +34,27 @@ $(document).ready(function () {
             language: {
                 search: "Table Filter:"
             },
-            // Callbacks to show/hide loading modal
-            "preInit": function () {
-                showLoadingModal();
-            },
-            "drawCallback": function () {
-                hideLoadingModal();
-            }
-        }).buttons().container().appendTo("#datatable-buttons_wrapper .col-md-6:eq(0)");
+            columnDefs: [{
+                targets: 0,
+                orderable: false
+            }],
+            //// Callbacks to show/hide loading modal
+            //"preInit": function () {
+            //    showLoadingModal();
+            //},
+            //"drawCallback": function () {
+            //    hideLoadingModal();
+            //}
+        });
+        setTimeout(function () {
+            $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+        }, 10);
+       
+        // Include DataTable buttons in a separate div for better styling
+        $('.dt-buttons').appendTo('.buttons-container');
+        document.getElementById('searchButton').addEventListener('click', loadDataAndDisplayTable_);
+        document.getElementById('filterButton').addEventListener('click', loadDataAndDisplayTable);
 
-        $(".dataTables_length select").addClass("form-select form-select-sm");
     } catch (error) {
         console.error("An error occurred:", error);
     }
@@ -81,11 +83,10 @@ function hideLoadingModal() {
     loadingModal.style.display = "none";
 }
 
-
 // --- SUBJECT FILTER ---
 async function loadDataAndDisplayTable_() {
     try {
-        showLoadingModal();
+        showLoadingModal(); // Show loading modal before starting the fetch
 
         var searchSubject = document.getElementById('startDateInput').value;
         var url = `/Home/DisplayElasticData?searchMailNumber=${searchSubject}`;
@@ -97,25 +98,14 @@ async function loadDataAndDisplayTable_() {
         }
 
         const data = await response.json();
+        console.log(data);
 
-        // Log the received data to the console
-        console.log('Received data:', data);
-
-        // Update your table or do other processing here with the data
-        console.log('Processed data:', data);
-
-        hideLoadingModal();
-        toastSuccess();
     } catch (error) {
         console.error('Error:', error);
+    } finally { 
         hideLoadingModal();
     }
 }
-
-// Add an event listener to the filter button to trigger data loading
-document.getElementById('searchButton').addEventListener('click', loadDataAndDisplayTable_);
-
-
 // --- DATE FILTER ---
 async function loadDataAndDisplayTable() {
     try {
@@ -132,18 +122,18 @@ async function loadDataAndDisplayTable() {
         }
 
         const data = await response.json();
-
-        // Update your table or do other processing here with the data
         console.log(data);
 
-        // Hide the loading modal after the data is loaded and displayed
-        hideLoadingModal();
-        toastSuccess();
     } catch (error) {
         console.error('Error:', error);
-        /*toastr.warning("TestERROR");*/
+    } finally {
         hideLoadingModal(); // Hide the loading modal in case of an error
     }
 }
+
 // Add an event listener to the filter button to trigger data loading
-document.getElementById('filterButton').addEventListener('click', loadDataAndDisplayTable);
+//document.getElementById('searchButton').addEventListener('click', loadDataAndDisplayTable_);
+//document.getElementById('filterButton').addEventListener('click', loadDataAndDisplayTable);
+
+//document.getElementById('searchButton').removeEventListener('click', loadDataAndDisplayTable_);
+//document.getElementById('filterButton').removeEventListener('click', loadDataAndDisplayTable);

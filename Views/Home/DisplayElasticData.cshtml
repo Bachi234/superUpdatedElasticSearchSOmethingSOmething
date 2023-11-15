@@ -1,4 +1,6 @@
-﻿@model CombinedViewModel
+﻿@using System.Web
+
+@model CombinedViewModel
 @{
     ViewData["Title"] = "Display Elastic Table";
 }
@@ -19,31 +21,28 @@
 </div>
 
 <div class="container">
-    <h3>ELASTIC SEARCH FUNCTION</h3>
     <!-- Mail number search bar -->
+    <h3>ELASTIC SEARCH VIA MAIL NUMBER</h3>
     <form id="mailNumberForm" method="get" action="@Url.Action("DisplayElasticData", "Home")">
         <div class="input-group mb-3">
-            <input type="text" class="form-control" id="searchMailNumberInput" name="searchMailNumbers" placeholder="Enter Mail Number">
+            <input type="text" class="form-control" id="searchMailNumberInput" name="searchMailNumbers" placeholder="Enter Mail Number" value="@ViewBag.SearchMailNumber">
             <div class="input-group-append">
                 <button class="btn btn-primary" type="submit">Enter</button>
             </div>
         </div>
     </form>
-
-
-   
-        <form method="get" name="searchForm">
-            <input type="hidden" name="searchMailNumber" value="@ViewBag.SearchMailNumber" />
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" name="searchSubject" placeholder="-- The input from mail number form will be placed here --" value="@Model.EventData.FirstOrDefault()?.Subject" readonly>
-                <div class="input-group-append">
-                    <button id="searchButton" type="submit" class="btn btn-primary" name="searchButton" onclick="loadDataAndDisplayTable_()">Search Subject</button>
-                </div>
-            </div>
-        </form>
+    <!-- After inputting the mail no from the above field, its input will be transferred here. -->
+    <form method="get" name="searchForm">
+      <input type="hidden" name="searchMailNumber" value="@ViewBag.SearchMailNumber" />
+        <div class="input-group mb-3">
+           <input type="text" class="form-control" name="searchSubject" placeholder="-- THE INPUT FROM MAIL NUMBER TEXT FIELD WILL BE PLACED HERE --" value="@Model.EventData.FirstOrDefault()?.Subject" readonly>
+             <div class="input-group-append">
+                <button id="searchButton" type="submit" class="btn btn-primary" name="searchButton" onclick="loadDataAndDisplayTable_()">Search Subject</button>
+             </div>
+        </div>
+    </form>
         <br />
-
-    <h3>FILTER ELASTIC DATA BY DATE</h3>
+    <h3>FILTER ELASTIC DATA VIA DATE</h3>
     <form method="get" name="dateFilterForm">
         <div class="row mb-3 d-flex align-items-end">
             <div class="col-md-5">
@@ -60,11 +59,11 @@
         </div>
     </form>
 
-
+    @*Loop code for datatables display,*@
     @if (Model != null && Model.ElasticData != null && Model.ElasticData.Any())
     {
         <h4 class="card-title">Datatable</h4>
-        <div class="card">
+        <div style="display: none;" id="datatableContainer0" class="card">
             <div class="card-body">
                 <div class="btn-group">
                     <button id="goToBottomBtn" class="btn btn-primary">Go to Bottom</button>
@@ -73,11 +72,12 @@
                     <table id="datatable-buttons" class="data-class table table-bordered dt-responsive nowrap w-100">
                         <thead>
                             <tr>
-                                <th>Subject</th>
+                                <th></th>
                                 <th>To</th>
                                 <th>From</th>
                                 <th>Event Type</th>
                                 <th>Event Date</th>
+                                <th>Subject</th>
                                 <th>Channel</th>
                                 <th>Message Category</th>
                                 <th>Quantity</th>
@@ -87,11 +87,12 @@
                             @foreach (var item in Model.ElasticData)
                             {
                                 <tr>
-                                    <td>@item.Subject</td>
+                                    <td></td>
                                     <td>@item.To</td>
                                     <td>@item.From</td>
                                     <td>@item.EventType</td>
                                     <td>@item.EventDate</td>
+                                    <td>@item.Subject</td>
                                     <td>@item.Channel</td>
                                     <td>@item.MessageCategory</td>
                                     <td>@item.Quantity</td>
@@ -104,7 +105,6 @@
             </div>
         </div>
     }
-
 </div>
 
 
@@ -124,41 +124,72 @@
 
 
 
+@*CODE DUMP*@
 
+@*    @if (Model != null && Model.ElasticData != null && Model.ElasticData.Any())
+    {
+        <div id="subjectContainer">
+            <br />
+            <h4>SUBJECT</h4>
+            @{
+                var uniqueSubjects = new HashSet<string>();
 
+                foreach (var item in Model.ElasticData)
+                {
+                    uniqueSubjects.Add(item.Subject);
+                }
 
+                foreach (var subject in uniqueSubjects)
+                {
+                    <div><strong>@subject</strong></div>
+                    <br />
+                }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            }
+        </div>
+        <br />
+        <h4 class="card-title">Datatable</h4>
+        <div class="card">
+            <div class="card-body">
+                <div class="btn-group">
+                    <button id="goToBottomBtn" class="btn btn-primary">Go to Bottom</button>
+                </div>
+                <div class="table-responsive">
+                    <table id="datatable-buttons" class="data-class table table-bordered dt-responsive nowrap w-100">
+                        <thead>
+                            <tr>
+                               
+                                <th>To</th>
+                                <th>From</th>
+                                <th>Event Type</th>
+                                <th>Event Date</th>
+                                <th>Channel</th>
+                                <th>Message Category</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ElasticData)
+                            {
+                                <tr>
+                                    
+                                    <td>@item.To</td>
+                                    <td>@item.From</td>
+                                    <td>@item.EventType</td>
+                                    <td>@item.EventDate</td>
+                                    <td>@item.Channel</td>
+                                    <td>@item.MessageCategory</td>
+                                    <td>@item.Quantity</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <button id="returnToTopBtn" class="btn btn-primary">Return to Top</button>
+            </div>
+        </div>
+    }
+</div>*@
 
 @*@model CombinedViewModel
 @{
@@ -249,7 +280,10 @@
                             @foreach (var item in Model.ElasticData)
                             {
                                 <tr>
-                                    <td>@item.Subject</td>
+                                    @if (item == Model.ElasticData.First())
+                                    {
+                                        @item.Subject
+                                    }
                                     <td>@item.To</td>
                                     <td>@item.From</td>
                                     <td>@item.EventType</td>
@@ -399,7 +433,10 @@
                             @foreach (var item in Model.ElasticData)
                             {
                                 <tr>
-                                    <td>@item.Subject</td>
+                                    <td> @if (item == Model.ElasticData.First())
+                                    {
+                                        @item.Subject
+                                    }</td>
                                     <td>@item.To</td>
                                     <td>@item.From</td>
                                     <td>@item.EventType</td>
@@ -417,3 +454,48 @@
         </div>
     }
 </div>*@
+
+@*
+@if (Model != null && Model.ElasticData != null && Model.ElasticData.Any())
+{
+    <h4 class="card-title">Datatable</h4>
+    <div class="card">
+        <div class="card-body">
+            <div class="btn-group">
+                <button id="goToBottomBtn" class="btn btn-primary">Go to Bottom</button>
+            </div>
+            <div class="table-responsive">
+                <table id="datatable-buttons" class="data-class table table-bordered dt-responsive nowrap w-100">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>To</th>
+                            <th>From</th>
+                            <th>Event Type</th>
+                            <th>Event Date</th>
+                            <th>Channel</th>
+                            <th>Message Category</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ElasticData)
+                        {
+                            <tr>
+                                <td>@item.Subject</td>
+                                <td>@item.To</td>
+                                <td>@item.From</td>
+                                <td>@item.EventType</td>
+                                <td>@item.EventDate</td>
+                                <td>@item.Channel</td>
+                                <td>@item.MessageCategory</td>
+                                <td>@item.Quantity</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button id="returnToTopBtn" class="btn btn-primary">Return to Top</button>
+        </div>
+    </div>
+}*@

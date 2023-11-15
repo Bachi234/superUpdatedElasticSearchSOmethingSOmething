@@ -55,6 +55,7 @@ namespace automationTest.Controllers
             ViewBag.SearchMailNumber = searchMailNumbers;
             ViewBag.SearchSubjectDateStart = startDate;
             ViewBag.SearchSubjectDateEnd = endDate;
+            ViewBag.LastMailNumber = searchMailNumbers;
 
             List<tblEvent> events = new List<tblEvent>();
 
@@ -68,9 +69,7 @@ namespace automationTest.Controllers
                     events.AddRange(eventsForMailNumber);
                 }
             }
-
             List<tblElasticData> elasticData;
-
             if (startDate != null && endDate != null)
             {
                 elasticData = _tblElasticData.GetElasticDataByDate(startDate, endDate);
@@ -104,22 +103,42 @@ namespace automationTest.Controllers
                 elasticData = _tblElasticData.GetElasticDataBySubject(searchSubject);
                 if (!string.IsNullOrEmpty(searchSubject))
                 {
-                    List<tblElasticData> mailNumberData = _tblElasticData.GetElasticDataBySubject(searchMailNumbers);
-                    elasticData = mailNumberData.Any() ? mailNumberData : elasticData;
+                    // Aggregation on the data using LINQ for searchSubject
+                    var aggregatedData = elasticData
+                        .GroupBy(data => new { data.To, data.From, data.Subject, data.EventType, data.EventDate, data.Channel, data.MessageCategory })
+                        .Select(group => new tblElasticData
+                        {
+                            To = group.Key.To,
+                            From = group.Key.From,
+                            Subject = group.Key.Subject,
+                            EventType = group.Key.EventType,
+                            EventDate = group.Key.EventDate,
+                            Channel = group.Key.Channel,
+                            MessageCategory = group.Key.MessageCategory,
+                            Quantity = group.Count()
+                        })
+                        .ToList();
+
+                    // Create the composite view model
+                    var compositeViewModel = new CombinedViewModel
+                    {
+                        EventData = events,
+                        ElasticData = aggregatedData
+                    };
+
+                    return View(compositeViewModel);
                 }
-
-                // Create the composite view model
-                var compositeViewModel = new CombinedViewModel
-                {
-                    EventData = events,
-                    ElasticData = elasticData
-                };
-
-                return View(compositeViewModel);
             }
+
+            // Create the composite view model without aggregation for searchSubject
+            var compositeViewModelWithoutAggregation = new CombinedViewModel
+            {
+                EventData = events,
+                ElasticData = elasticData
+            };
+
+            return View(compositeViewModelWithoutAggregation);
         }
-
-
 
         [HttpPost]
         public IActionResult DisplayElasticData(DateTime? startDate, DateTime? endDate)

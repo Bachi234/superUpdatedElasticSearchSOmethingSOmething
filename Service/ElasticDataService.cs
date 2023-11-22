@@ -16,7 +16,7 @@ namespace automationTest.Service
         private IQueryable<tblElasticData> ProjectElasticDataProperties(IQueryable<tblElasticData> dataQuery)
         {
             return dataQuery.Select(data => new tblElasticData
-            {
+            {   
                 Subject = data.Subject,
                 To = data.To,
                 From = data.From,

@@ -4,6 +4,8 @@
 @{
     ViewData["Title"] = "Display Elastic Table";
 }
+
+<!--LOADING MODAL-->
 <div id="ProgressModal" class="modal" visible="true" runat="server" style="display: none; z-index: 1000; background-color: rgba(0, 0, 0, 0.37); overflow-y: auto;">
     <!-- Modal content -->
     <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -20,29 +22,27 @@
     </div>
 </div>
 
+<!--MAIL NUMBER SEARCH FIELD-->
 <div class="container">
-    <!-- Mail number search bar -->
-    <h3>ELASTIC SEARCH VIA MAIL NUMBER</h3>
+    <h3>ELASTIC SEARCH VIA MAIL NUMBER</h3>  <!-- Mail number search bar -->
     <form id="mailNumberForm" method="get" action="@Url.Action("DisplayElasticData", "Home")">
         <div class="input-group mb-3">
             <input type="text" class="form-control" id="searchMailNumberInput" name="searchMailNumbers" placeholder="Enter Mail Number" value="@ViewBag.SearchMailNumber">
+        </div>
+    </form>
+
+    <!-- After inputting the mail no from the above field, its input will be transferred here automatically via js scripts. -->
+    <form method="get" id="searchForm" name="searchForm">
+        <input type="hidden" name="searchMailNumber" value="@ViewBag.SearchMailNumber" />
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="searchSubject" id="searchSubjectInput" placeholder="-- THE INPUT FROM MAIL NUMBER TEXT FIELD WILL BE PLACED HERE --" value="@Model.EventData.FirstOrDefault()?.Subject" readonly>
             <div class="input-group-append">
-                <button class="btn btn-primary" type="submit">Enter</button>
+                <button id="searchButton" type="submit" onclick="loadDataAndDisplayTable_" class="btn btn-primary" name="searchButton">Generate Elastic Table</button>
             </div>
         </div>
     </form>
-    <!-- After inputting the mail no from the above field, its input will be transferred here. -->
-    <form method="get" name="searchForm">
-      <input type="hidden" name="searchMailNumber" value="@ViewBag.SearchMailNumber" />
-        <div class="input-group mb-3">
-           <input type="text" class="form-control" name="searchSubject" placeholder="-- THE INPUT FROM MAIL NUMBER TEXT FIELD WILL BE PLACED HERE --" value="@Model.EventData.FirstOrDefault()?.Subject" readonly>
-             <div class="input-group-append">
-                <button id="searchButton" type="submit" class="btn btn-primary" name="searchButton" onclick="loadDataAndDisplayTable_()">Search Subject</button>
-             </div>
-        </div>
-    </form>
-        <br />
-    <h3>FILTER ELASTIC DATA VIA DATE</h3>
+
+    <h3>FILTER ELASTIC DATA VIA DATE</h3> <!--DATE FILTER-->
     <form method="get" name="dateFilterForm">
         <div class="row mb-3 d-flex align-items-end">
             <div class="col-md-5">
@@ -59,15 +59,12 @@
         </div>
     </form>
 
-    @*Loop code for datatables display,*@
+    <!--DATA TABLE LOOP CODE-->
     @if (Model != null && Model.ElasticData != null && Model.ElasticData.Any())
     {
         <h4 class="card-title">Datatable</h4>
         <div style="display: none;" id="datatableContainer0" class="card">
             <div class="card-body">
-                <div class="btn-group">
-                    <button id="goToBottomBtn" class="btn btn-primary">Go to Bottom</button>
-                </div>
                 <div class="table-responsive">
                     <table id="datatable-buttons" class="data-class table table-bordered dt-responsive nowrap w-100">
                         <thead>
@@ -101,30 +98,12 @@
                         </tbody>
                     </table>
                 </div>
-                <button id="returnToTopBtn" class="btn btn-primary">Return to Top</button>
             </div>
         </div>
     }
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@*CODE DUMP*@
+<!--CODE DUMP-->
 
 @*    @if (Model != null && Model.ElasticData != null && Model.ElasticData.Any())
     {

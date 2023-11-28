@@ -9,10 +9,10 @@
             initComplete: function () {
                 // show the table after datatables is fully initialized
                 $('#datatableContainer0').delay(10).show();
-                 $.fn.dataTable.ext.errMode = 'none'; // Disable error reporting for timeout
-        $.ajaxSetup({
-            timeout: 0, // Set timeout to 0 for infinite timeout
-        });
+                $.fn.dataTable.ext.errMode = 'none'; // Disable error reporting for timeout
+                $.ajaxSetup({
+                    timeout: 0, // Set timeout to 0 for infinite timeout
+                });
             },
             dom: '<"row"<"col-md-6"B><"col-md-6"f>>rt<"row"<"col-md-6"l><"col-md-6"p>>',
             buttons: [
@@ -20,7 +20,31 @@
                     extend: 'excelHtml5',
                     text: 'Excel',
                     className: 'btn btn-success btn-sm waves-effect waves-light',
-                    filename: 'ElasticReport'
+                    filename: function () {
+                        // Extract searchMailNumber, searchSubject, startDate, and endDate from the URL parameters
+                        var urlParams = new URLSearchParams(window.location.search);
+                        var searchMailNumber = urlParams.get('searchMailNumber');
+                        var searchSubject = urlParams.get('searchSubject');
+                        var startDate = urlParams.get('startDate');
+                        var endDate = urlParams.get('endDate');
+
+                        // Check if searchMailNumber is present, if yes, use it for filename
+                        if (searchMailNumber && searchMailNumber.trim() !== '') {
+                            return searchMailNumber + '_ElasticData';
+                        } else if (searchSubject && searchSubject.trim() !== '') {
+                            // If searchMailNumber is not present, check searchSubject for filename
+                            return searchSubject + '_ElasticData';
+                        } else if (startDate && startDate.trim() !== '' && endDate && endDate.trim() !== '') {
+                            // If both startDate and endDate are present, format them for filename
+                            var formattedStartDate = formatDate(startDate);
+                            var formattedEndDate = formatDate(endDate);
+
+                            return formattedStartDate + ' to ' + formattedEndDate + '_ElasticData';
+                        } else {
+                            // Default filename if none of the parameters are present
+                            return 'ElasticReport';
+                        }
+                    }
                 },
             ],
             language: {
@@ -145,6 +169,15 @@ function showLoadingModal() {
 function hideLoadingModal() {
     var loadingModal = document.getElementById('ProgressModal');
     loadingModal.style.display = "none";
+}
+
+function formatDate(dateString) {
+    var date = new Date(dateString);
+    var month = (date.getMonth() + 1).toString().padStart(2, '0');
+    var day = date.getDate().toString().padStart(2, '0');
+    var year = date.getFullYear().toString().substring(-2);
+
+    return month + '-' + day + '-' + year;
 }
 
 // --- MAIL NUMBER ---

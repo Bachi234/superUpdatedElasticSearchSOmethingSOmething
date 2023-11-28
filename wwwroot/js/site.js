@@ -9,6 +9,10 @@
             initComplete: function () {
                 // show the table after datatables is fully initialized
                 $('#datatableContainer0').delay(10).show();
+                 $.fn.dataTable.ext.errMode = 'none'; // Disable error reporting for timeout
+        $.ajaxSetup({
+            timeout: 0, // Set timeout to 0 for infinite timeout
+        });
             },
             dom: '<"row"<"col-md-6"B><"col-md-6"f>>rt<"row"<"col-md-6"l><"col-md-6"p>>',
             buttons: [
@@ -146,6 +150,13 @@ function hideLoadingModal() {
 // --- MAIL NUMBER ---
 async function loadDataAndDisplayTable_(searchMailNumber) {
     try {
+        var searchSubjectInput = document.getElementById('searchSubjectInput').value;
+
+        // Check if the input is null or empty
+        if (!searchSubjectInput) {
+            alert('Field cannot be empty.'); // Display an error message
+            return; // Stop script execution
+        }
         showLoadingModal(); // Show loading modal before starting the fetch
 
         // Construct the URL for fetching data based on the mail number

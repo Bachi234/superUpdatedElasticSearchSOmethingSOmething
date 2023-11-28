@@ -40,56 +40,18 @@ namespace automationTest.Service
             var query = _context.tblElasticData
             .Where(data => !string.IsNullOrWhiteSpace(data.Subject) && data.Subject.Contains(searchSubject));
 
-            var command = _context.Database.GetDbConnection().CreateCommand();
-            command.CommandTimeout = 0;
+            //var command = _context.Database.GetDbConnection().CreateCommand();
+            //command.CommandTimeout = 0;
 
             var result = ProjectElasticDataProperties(query).ToList();
 
             return result;
         }
 
-        //public List<tblElasticData> GetElasticDataByDate(DateTime? startDate, DateTime? endDate)
-        //{
-        //    startDate ??= DateTime.MinValue; // If startDate is null, set it to DateTime.MinValue
-        //    endDate ??= DateTime.MaxValue;   // If endDate is null, set it to DateTime.MaxValue
-
-        //    var command = _context.Database.GetDbConnection().CreateCommand();
-        //    command.CommandTimeout = 0; // 5 min timeout  
-
-        //    var result = _context.tblElasticData
-        //        .Where(data => data.EventDate >= startDate && data.EventDate <= endDate)
-        //        .GroupBy(data => new
-        //        {
-        //            data.To,
-        //            data.From,
-        //            data.Subject,
-        //            data.EventType,
-        //            data.EventDate,
-        //            data.Channel,
-        //            data.MessageCategory
-        //        })
-        //        .Select(group => new tblElasticData
-        //        {
-        //            To = group.Key.To,
-        //            From = group.Key.From,
-        //            Subject = group.Key.Subject,
-        //            EventType = group.Key.EventType,
-        //            EventDate = group.Key.EventDate,
-        //            Channel = group.Key.Channel,
-        //            MessageCategory = group.Key.MessageCategory,
-        //            Quantity = group.Count() // Count represents the quantity
-        //        })
-        //        .ToList();
-
-        //    return result;
-        //}
         public List<tblElasticData> GetElasticDataByDate(DateTime? startDate, DateTime? endDate)
         {
             startDate ??= DateTime.MinValue; // If startDate is null, set it to DateTime.MinValue
             endDate ??= DateTime.MaxValue;   // If endDate is null, set it to DateTime.MaxValue
-
-            var command = _context.Database.GetDbConnection().CreateCommand();
-            command.CommandTimeout = 0; // 5 min timeout  
 
             var result = _context.tblElasticData
                 .Where(data => data.EventDate.Date >= startDate.Value.Date && data.EventDate.Date <= endDate.Value.Date)
@@ -121,7 +83,6 @@ namespace automationTest.Service
 
     }
 }
-
 //CODE DUMP
 //private IQueryable<tblElasticData> ProjectElasticDataProperties(IQueryable<tblElasticData> dataQuery)
 //{
@@ -169,4 +130,40 @@ namespace automationTest.Service
 //    return ProjectElasticDataProperties(_context.tblElasticData
 //        .Where(data => data.EventDate.Date >= startDate && data.EventDate.Date <= endDate))
 //        .ToList();
+//}
+
+//public List<tblElasticData> GetElasticDataByDate(DateTime? startDate, DateTime? endDate)
+//{
+//    startDate ??= DateTime.MinValue; // If startDate is null, set it to DateTime.MinValue
+//    endDate ??= DateTime.MaxValue;   // If endDate is null, set it to DateTime.MaxValue
+
+//    var command = _context.Database.GetDbConnection().CreateCommand();
+//    command.CommandTimeout = 0; // 5 min timeout  
+
+//    var result = _context.tblElasticData
+//        .Where(data => data.EventDate >= startDate && data.EventDate <= endDate)
+//        .GroupBy(data => new
+//        {
+//            data.To,
+//            data.From,
+//            data.Subject,
+//            data.EventType,
+//            data.EventDate,
+//            data.Channel,
+//            data.MessageCategory
+//        })
+//        .Select(group => new tblElasticData
+//        {
+//            To = group.Key.To,
+//            From = group.Key.From,
+//            Subject = group.Key.Subject,
+//            EventType = group.Key.EventType,
+//            EventDate = group.Key.EventDate,
+//            Channel = group.Key.Channel,
+//            MessageCategory = group.Key.MessageCategory,
+//            Quantity = group.Count() // Count represents the quantity
+//        })
+//        .ToList();
+
+//    return result;
 //}

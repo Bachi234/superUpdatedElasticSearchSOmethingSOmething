@@ -4,7 +4,6 @@ namespace automationTest.Models
 {
     public class CombinedModel
     {
-        
         public int ElasticDataId { get; set; }
         public string ? To { get; set; }
         public string ? From { get; set; }
@@ -17,7 +16,8 @@ namespace automationTest.Models
 
         
         public int EventId { get; set; }
-        public string ? Mail_Number { get; set; }
+        public string? Mail_Number { get; set; }
+        
 
     }
 }
